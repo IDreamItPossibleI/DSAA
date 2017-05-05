@@ -18,7 +18,7 @@ typedef int ElemType; //数据类型
 //yuiaragaki.microfun.com.dsaa.jni
 jint Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_test(JNIEnv *env, jobject thiz)
 {
-    return test();
+    return test(env);
 }
 
 typedef struct {
@@ -27,22 +27,7 @@ typedef struct {
     int listsize;   //当前分配的存储容量
 }SqList;
 
-SqList L;
-
-//c语言木有bool类型 参看http://www.cnblogs.com/pharen/archive/2012/02/06/2340257.html
-int test()
-{
-    bool status = InitList(&L);
-    L.elem[0] = 1024;
-    L.elem[1] = 1210;
-    LOGE("测试jni log信息");
-    LOGE("elem[0]:%d", L.elem[0]);
-    int sum = L.elem[0] + L.elem[1];
-    LOGE("sum:%d", sum);
-    return sum;
-}
-
-//我想骂人，c语言明明木有引用这个概念，但是在数据结构的c语言版的伪代码却使用了&，改成*
+//我想骂人，使用&编译一直出错，c语言明明木有引用这个概念，但是在数据结构的c语言版的伪代码却使用了&，改成*
 //初始化顺序表
 int InitList(SqList *L)
 {
@@ -58,6 +43,7 @@ int InitList(SqList *L)
 
 int InsertList(SqList *L, int i, ElemType e)
 {
+    LOGE("1 L.length:%d", (*L).length);
     //先判断插入位置
     if(i<1 || i>(*L).length+1)
     {
@@ -67,19 +53,22 @@ int InsertList(SqList *L, int i, ElemType e)
     if((*L).length>=(*L).listsize)
     {
         ElemType *newbase = (ElemType *)realloc((*L).elem, ((*L).listsize+LISTINCREMENT)*sizeof(ElemType));
-        if(!newbase){
+        if(!newbase)
+        {
             return false;
         }
         (*L).elem = newbase;
         (*L).listsize += LISTINCREMENT;
     }
+    LOGE("2 L.length:%d", (*L).length);
     //添加新数据
     for(int q = (*L).length-1; q>=i; q--)
     {
         (*L).elem[q+1] = (*L).elem[q];
     }
-    (*L).elem[i] = e;
+    (*L).elem[i-1] = e;
     ++(*L).length;
+    LOGE("3 L.length:%d", (*L).length);
     return true;
 }
 
@@ -89,19 +78,8 @@ int ClearList(SqList *L)
 
 }
 
-char *strList;
-
-//输出线性表
-void LogList(SqList L)
-{
-    for(int i=0; i<L.length; i++)
-    {
-        strList = strJoin(strList, (char *)L.elem[i]);
-    }
-    LOGE("strList:%s", strList);
-}
-
-char* strJoin(char *s1, char *s2)
+//error: conflicting types for 'strJoin'一开始LogList是在strJoin之前的，编译报这个错，因该是因为c的编译器是按顺序编译的，LogList使用了strJoin却在strJoin定义之前是错误的
+char *strJoin(char *s1, char *s2)
 {
     char *result = malloc(strlen(s1)+strlen(2)+1);
     if(!result)
@@ -112,4 +90,36 @@ char* strJoin(char *s1, char *s2)
     strcat(result, s2);
 
     return result;
+}
+
+//输出线性表
+void LogList(SqList L)
+{
+    //char *strList = malloc(L.length*sizeof(char));
+    for(int i=0; i<L.length; i++)
+    {
+        LOGE("L.elem[%d]:%d", i, L.elem[i]);
+        //strList = strJoin(strList, (char *)L.elem[i]);
+    }
+    //LOGE("strList:%s", strList);
+}
+
+SqList L;
+
+//c语言木有bool类型 参看http://www.cnblogs.com/pharen/archive/2012/02/06/2340257.html
+int test(JNIEnv *env)
+{
+    bool status = InitList(&L);
+    L.elem[0] = 10;
+    L.elem[1] = 12;
+    L.length = 2;
+    LOGE("测试jni log信息");
+    LOGE("elem[0]:%d", L.elem[0]);
+    int sum = L.elem[0] + L.elem[1];
+    LOGE("sum:%d", sum);
+
+    InsertList(&L, 3, 8);
+    InsertList(&L, 4, 6);
+    SayHello(env);
+    return sum;
 }
