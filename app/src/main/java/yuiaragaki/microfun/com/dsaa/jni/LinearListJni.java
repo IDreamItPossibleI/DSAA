@@ -24,4 +24,6 @@ public class LinearListJni {
 
     public native int test();
 
+    public native void deletexall(byte[] buffer, int len, int x, int id);
+
 }

@@ -4,6 +4,7 @@
 //线性表的顺序实现
 #include <jni.h>
 #include <stdbool.h>
+#include <string.h>
 #include <android/log.h>
 
 #define LIST_INIT_SIZE 100 //存储空间初始分配量
@@ -19,6 +20,12 @@ typedef int ElemType; //数据类型
 jint Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_test(JNIEnv *env, jobject thiz)
 {
     return test(env);
+}
+
+JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_deletexall(JNIEnv *env, jobject thiz, jbyteArray buffer, jint len, jint x, jint id)
+{
+    LOGE("len:%d;x:%d;id:%d", len, x, id);
+    deletexall(env, buffer, len, x, id);
 }
 
 typedef struct {
@@ -43,7 +50,6 @@ int InitList(SqList *L)
 
 int InsertList(SqList *L, int i, ElemType e)
 {
-    LOGE("1 L.length:%d", (*L).length);
     //先判断插入位置
     if(i<1 || i>(*L).length+1)
     {
@@ -60,7 +66,6 @@ int InsertList(SqList *L, int i, ElemType e)
         (*L).elem = newbase;
         (*L).listsize += LISTINCREMENT;
     }
-    LOGE("2 L.length:%d", (*L).length);
     //添加新数据
     for(int q = (*L).length-1; q>=i; q--)
     {
@@ -68,40 +73,36 @@ int InsertList(SqList *L, int i, ElemType e)
     }
     (*L).elem[i-1] = e;
     ++(*L).length;
-    LOGE("3 L.length:%d", (*L).length);
     return true;
+}
+
+int DeleteXAllList(SqList *L, ElemType x)
+{
+    if(L == NULL)
+    {
+        return 0;
+    }
+    int i = 0;
+    int k = 0;
+    for(i; i<(*L).length; i++)
+    {
+        if((*L).elem[i] != x)
+        {
+            if(i != k)
+            {
+                (*L).elem[k] = (*L).elem[i];
+            }
+            k++;
+        }
+    }
+    (*L).length = k+1;
+    return 1;
 }
 
 //将顺序表清空
 int ClearList(SqList *L)
 {
 
-}
-
-//error: conflicting types for 'strJoin'一开始LogList是在strJoin之前的，编译报这个错，因该是因为c的编译器是按顺序编译的，LogList使用了strJoin却在strJoin定义之前是错误的
-char *strJoin(char *s1, char *s2)
-{
-    char *result = malloc(strlen(s1)+strlen(2)+1);
-    if(!result)
-    {
-        exit(1);
-    }
-    strcpy(result, s1);
-    strcat(result, s2);
-
-    return result;
-}
-
-//输出线性表
-void LogList(SqList L)
-{
-    //char *strList = malloc(L.length*sizeof(char));
-    for(int i=0; i<L.length; i++)
-    {
-        LOGE("L.elem[%d]:%d", i, L.elem[i]);
-        //strList = strJoin(strList, (char *)L.elem[i]);
-    }
-    //LOGE("strList:%s", strList);
 }
 
 SqList L;
@@ -120,6 +121,22 @@ int test(JNIEnv *env)
 
     InsertList(&L, 3, 8);
     InsertList(&L, 4, 6);
-    SayHello(env);
+//    SayHello(env);
+    ShowWithTextView(env, L);
     return sum;
+}
+
+int deletexall(JNIEnv *env, jbyteArray buffer, jint len, jint x, jint id)
+{
+    unsigned char array[len];
+    (*env)->GetByteArrayRegion(env, buffer, 0, len, array);
+    SqList List;
+    InitList(&List);
+    for(int i =0; i<len; i++)
+    {
+        InsertList(&List, i, array[i]);
+    }
+    DeleteXAllList(&List, x);
+    LOGE("L.elem[0]:%d", List.elem[0]);
+    ShowWithTextView(env, List, id);
 }
