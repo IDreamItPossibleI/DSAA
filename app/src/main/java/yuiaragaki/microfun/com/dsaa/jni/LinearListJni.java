@@ -26,4 +26,8 @@ public class LinearListJni {
 
     public native void deletexall(byte[] buffer, int len, int x, int id);
 
+    public native void reverse(byte[] buffer, int len, int id);
+
+    public native void deleteminfirst(byte[] buffer, int len, int id);
+
 }

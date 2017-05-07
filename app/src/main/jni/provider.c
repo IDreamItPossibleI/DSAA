@@ -159,6 +159,7 @@ void ShowWithTextView(JNIEnv *env, SqList L, int id)
     for(int i=0; i<L.length; i++)
     {
         buffer[i] = L.elem[i];
+        LOGE("Show L.elem[%d]:%d", i, L.elem[i]);
     }
     jbyteArray array = (*env)->NewByteArray(env, L.length);
     (*env)->SetByteArrayRegion(env, array, 0, L.length, buffer);

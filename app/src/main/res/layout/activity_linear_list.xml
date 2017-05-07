@@ -33,6 +33,16 @@
                 android:layout_height="wrap_content"
                 android:text="删除所有指定数据"/>
         </LinearLayout>
+        <Button
+            android:id="@+id/btn_reverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="逆置数据"/>
+        <Button
+            android:id="@+id/btn_delete_min_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="删除最小的第一个数据"/>
     </LinearLayout>
 
 </LinearLayout>

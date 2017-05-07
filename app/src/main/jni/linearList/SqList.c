@@ -28,6 +28,20 @@ JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_delet
     deletexall(env, buffer, len, x, id);
 }
 
+JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_reverse(JNIEnv *env, jobject thiz, jbyteArray buffer, jint len, jint id)
+{
+    LOGE("len:%d;", len);
+    reverse(env, buffer, len, id);
+}
+
+JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_deleteminfirst(JNIEnv *env, jobject thiz, jbyteArray buffer, jint len, jint id)
+{
+    LOGE("len:%d;", len);
+    deleteminfirst(env, buffer, len, id);
+}
+
+/* 数据结构定义部分 start */
+
 typedef struct {
     ElemType *elem; //存储空间基址
     int length;     //当前长度
@@ -76,6 +90,40 @@ int InsertList(SqList *L, int i, ElemType e)
     return true;
 }
 
+int DeleteList(SqList *L, int i, ElemType *e)
+{
+    if(L == NULL)
+    {
+        LOGE("空表无法删除数据");
+        return -1;
+    }
+    for(i; i<(*L).length; i++)
+    {
+        (*L).elem[i-1] = (*L).elem[i];
+    }
+    --(*L).length;
+    return 1;
+}
+
+//将线性表原地逆置（1,2,3,4---》4,3,2,1）
+int ReverseList(SqList *L)
+{
+    if(L == NULL)
+    {
+        LOGE("空表不需逆置");
+        return 0;
+    }
+    int temp;
+    for(int i=1; i<=(*L).length/2; i++)
+    {
+        temp = (*L).elem[(*L).length-i];
+        (*L).elem[(*L).length-i] = (*L).elem[i-1];
+        (*L).elem[i-1] = temp;
+    }
+    return 1;
+}
+
+//删除线性表中所有值为x的数据（1,2,3,2,4---》1,3,4）
 int DeleteXAllList(SqList *L, ElemType x)
 {
     if(L == NULL)
@@ -99,12 +147,49 @@ int DeleteXAllList(SqList *L, ElemType x)
     return 1;
 }
 
+//删除线性表中最小值的数据（第一个）（1,2,1,3,2---》2,1,3,2）
+int DeleteMinFirst(SqList *L)
+{
+    int pos=0;
+    for(int i=2; i<(*L).length; i++)
+    {
+        if((*L).elem[i-1]<(*L).elem[pos])
+        {
+            pos=i-1;
+        }
+    }
+    ElemType *e;
+    DeleteList(L, pos+1, e);
+}
+
 //将顺序表清空
 int ClearList(SqList *L)
 {
 
 }
 
+/* 数据结构定义部分 end */
+
+//根据Java的数据初始化线性表
+SqList getarraytolist(JNIEnv *env, jbyteArray buffer, jint len)
+{
+    unsigned char array[len];
+    (*env)->GetByteArrayRegion(env, buffer, 0, len, array);
+    SqList List;
+    InitList(&List);
+    for(int i =1; i<=len; i++)
+    {
+        InsertList(&List, i, array[i-1]);
+    }
+    for(int i=0; i<List.length; i++)
+    {
+        LOGE("Init L.elem[%d]:%d", i, List.elem[i]);
+    }
+    return List;
+}
+
+
+/* jni调用的方法定义部分 start */
 SqList L;
 
 //c语言木有bool类型 参看http://www.cnblogs.com/pharen/archive/2012/02/06/2340257.html
@@ -128,15 +213,24 @@ int test(JNIEnv *env)
 
 int deletexall(JNIEnv *env, jbyteArray buffer, jint len, jint x, jint id)
 {
-    unsigned char array[len];
-    (*env)->GetByteArrayRegion(env, buffer, 0, len, array);
-    SqList List;
-    InitList(&List);
-    for(int i =0; i<len; i++)
-    {
-        InsertList(&List, i, array[i]);
-    }
+    SqList List = getarraytolist(env, buffer, len);
     DeleteXAllList(&List, x);
     LOGE("L.elem[0]:%d", List.elem[0]);
     ShowWithTextView(env, List, id);
 }
+
+int reverse(JNIEnv *env, jbyteArray buffer, jint len, jint id)
+{
+    SqList List = getarraytolist(env, buffer, len);
+    ReverseList(&List);
+    ShowWithTextView(env, List, id);
+}
+
+int deleteminfirst(JNIEnv *env, jbyteArray buffer, jint len, jint id)
+{
+    SqList List = getarraytolist(env, buffer, len);
+    DeleteMinFirst(&List);
+    ShowWithTextView(env, List, id);
+}
+
+/* jni调用的方法定义部分 end */
