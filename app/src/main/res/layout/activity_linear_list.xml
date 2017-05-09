@@ -43,6 +43,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="删除最小的第一个数据"/>
+        <Button
+            android:id="@+id/btn_delete_same_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="删除所有重复数据"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/edt_input_params2"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btn_merge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="合并为一个新的有序顺序表"/>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

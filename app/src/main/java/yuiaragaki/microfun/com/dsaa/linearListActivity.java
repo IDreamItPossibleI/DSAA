@@ -19,8 +19,8 @@ import yuiaragaki.microfun.com.dsaa.jni.LinearListJni;
 
 public class linearListActivity extends Activity implements View.OnClickListener {
 
-    public EditText mInputInit, mInputParams;
-    public Button mBtnDeleteXAll, mBtnReverse, mBtnDeleteMinFirst;
+    public EditText mInputInit, mInputParams, mInputParams2;
+    public Button mBtnDeleteXAll, mBtnReverse, mBtnDeleteMinFirst, mBtnDeleteSameAll, mBtnMerge;
     public static EditText mOutputResult;
 
     @Override
@@ -33,6 +33,7 @@ public class linearListActivity extends Activity implements View.OnClickListener
     private void init() {
         mInputInit = (EditText) findViewById(R.id.edt_input_initdata);
         mInputParams = (EditText) findViewById(R.id.edt_input_params);
+        mInputParams2 = (EditText) findViewById(R.id.edt_input_params2);
         mOutputResult = (EditText) findViewById(R.id.edt_output_result);
         mBtnDeleteXAll = (Button) findViewById(R.id.btn_delete_x_all);
         mBtnDeleteXAll.setOnClickListener(this);
@@ -40,6 +41,10 @@ public class linearListActivity extends Activity implements View.OnClickListener
         mBtnReverse.setOnClickListener(this);
         mBtnDeleteMinFirst = (Button) findViewById(R.id.btn_delete_min_first);
         mBtnDeleteMinFirst.setOnClickListener(this);
+        mBtnDeleteSameAll = (Button) findViewById(R.id.btn_delete_same_all);
+        mBtnDeleteSameAll.setOnClickListener(this);
+        mBtnMerge = (Button) findViewById(R.id.btn_merge);
+        mBtnMerge.setOnClickListener(this);
     }
 
     @Override
@@ -58,6 +63,14 @@ public class linearListActivity extends Activity implements View.OnClickListener
                 break;
             case R.id.btn_delete_min_first:
                 LinearListJni.getInstance().deleteminfirst(bytes, bytes.length, 2);
+                break;
+            case R.id.btn_delete_same_all:
+                LinearListJni.getInstance().deletesameall(bytes, bytes.length, 2);
+                break;
+            case R.id.btn_merge:
+                String str2 = mInputParams2.getText().toString();
+                byte[] bytes2 = parseInput(str2);
+                LinearListJni.getInstance().merge(bytes, bytes.length, bytes2, bytes2.length, 2);
                 break;
         }
     }

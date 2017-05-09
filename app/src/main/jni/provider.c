@@ -25,13 +25,15 @@ int InitProvider(JNIEnv *env)
     LOGE("InitProvider Begin");
     if(env == NULL)
     {
-    LOGE("InitProvider null");
+        LOGE("InitProvider null");
         return 0;
     }
 
     if(Provider == NULL)
     {
-        Provider = (*env)->FindClass(env, "yuiaragaki/microfun/com/dsaa/jni/Provider");
+        jclass localRef;
+        localRef = (*env)->FindClass(env, "yuiaragaki/microfun/com/dsaa/jni/Provider");
+        Provider = (*env)->NewGlobalRef(env, localRef);
         if(Provider == NULL)
         {
             return -1;

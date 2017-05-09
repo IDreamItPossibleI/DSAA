@@ -30,4 +30,8 @@ public class LinearListJni {
 
     public native void deleteminfirst(byte[] buffer, int len, int id);
 
+    public native void deletesameall(byte[] buffer, int len, int id);
+
+    public native void merge(byte[] buffer1, int len1, byte[] buffer2, int len2, int id);
+
 }

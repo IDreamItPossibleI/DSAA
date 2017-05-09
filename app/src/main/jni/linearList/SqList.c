@@ -40,6 +40,17 @@ JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_delet
     deleteminfirst(env, buffer, len, id);
 }
 
+JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_deletesameall(JNIEnv *env, jobject thiz, jbyteArray buffer, jint len, jint id)
+{
+    LOGE("len:%d;", len);
+    deletesameall(env, buffer, len, id);
+}
+
+JNIEXPORT void JNICALL Java_yuiaragaki_microfun_com_dsaa_jni_LinearListJni_merge(JNIEnv *env, jobject thiz, jbyteArray buffer1, jint len1, jbyteArray buffer2, jint len2, jint id)
+{
+    merge(env, buffer1, len1, buffer2, len2, id);
+}
+
 /* 数据结构定义部分 start */
 
 typedef struct {
@@ -162,6 +173,59 @@ int DeleteMinFirst(SqList *L)
     DeleteList(L, pos+1, e);
 }
 
+//删除有序顺序表所有其值重复的元素，使表中所有的元素的值均不相同
+int DeleteSameAll(SqList *L)
+{
+    int k=1;
+    for(int i=1; i<(*L).length-1; i++)
+    {
+        if((*L).elem[i-1] != (*L).elem[i])
+        {
+            if(k != i)
+            {
+                (*L).elem[k] = (*L).elem[i];
+            }
+            k++;
+        }
+    }
+    (*L).length = k;
+    return 1;
+}
+
+//合并两个有序顺序表为一个新的有序顺序表
+int Merge(SqList La, SqList Lb, SqList *Lc)
+{
+    int i=0;
+    int j=0;
+    int k=0;
+    while(i<La.length && j<Lb.length)
+    {
+        if(La.elem[i]<=Lb.elem[j])
+        {
+            LOGE("ak:%d", k);
+            (*Lc).elem[k++] = La.elem[i++];
+        }
+        else
+        {
+            LOGE("bk:%d", k);
+            (*Lc).elem[k++] = Lb.elem[j++];
+        }
+    }
+    while(i<La.length)
+    {
+        LOGE("ik:%d", k);
+        (*Lc).elem[k++] = La.elem[i++];
+    }
+    while(j<Lb.length)
+    {
+        LOGE("ik:%d", k);
+        (*Lc).elem[k++] = La.elem[j++];
+    }
+    LOGE("ck:%d", k);
+    (*Lc).length = k;
+    return 1;
+}
+
 //将顺序表清空
 int ClearList(SqList *L)
 {
@@ -231,6 +295,23 @@ int deleteminfirst(JNIEnv *env, jbyteArray buffer, jint len, jint id)
     SqList List = getarraytolist(env, buffer, len);
     DeleteMinFirst(&List);
     ShowWithTextView(env, List, id);
+}
+
+int deletesameall(JNIEnv *env, jbyteArray buffer, jint len, jint id)
+{
+    SqList List = getarraytolist(env, buffer, len);
+    DeleteSameAll(&List);
+    ShowWithTextView(env, List, id);
+}
+
+int merge(JNIEnv *env, jbyteArray buffer1, jint len1, jbyteArray buffer2, jint len2, jint id)
+{
+    SqList La = getarraytolist(env, buffer1, len1);
+    SqList Lb = getarraytolist(env, buffer2, len2);
+    SqList Lc;
+    InitList(&Lc);
+    Merge(La, Lb, &Lc);
+    ShowWithTextView(env, Lc, id);
 }
 
 /* jni调用的方法定义部分 end */
